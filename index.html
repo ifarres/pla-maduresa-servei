@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pla de maduresa del servei</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: #f8f7f4;
+  color: #2c2c2a;
+  padding: 24px;
+  min-height: 100vh;
+}
+
+.container { max-width: 900px; margin: 0 auto; }
+
+h1 { font-size: 20px; font-weight: 600; margin-bottom: 4px; color: #1a1a1a; }
+.subtitle { font-size: 13px; color: #73726c; margin-bottom: 28px; line-height: 1.5; }
+
+.timeline {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 32px;
+  padding: 0 12px;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  top: 18px;
+  left: 12px;
+  right: 12px;
+  height: 3px;
+  background: #e8e6e0;
+  border-radius: 2px;
+  z-index: 0;
+}
+
+.timeline-progress {
+  position: absolute;
+  top: 18px;
+  left: 12px;
+  height: 3px;
+  background: #534AB7;
+  border-radius: 2px;
+  z-index: 1;
+  transition: width 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.phase-dot {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  padding: 0 4px;
+}
+
+.dot {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid #d3d1c7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: #888780;
+  transition: all 0.3s;
+  margin-bottom: 8px;
+}
+
+.phase-dot.active .dot {
+  border-color: #534AB7;
+  background: #534AB7;
+  color: #fff;
+  box-shadow: 0 0 0 4px rgba(83, 74, 183, 0.15);
+}
+
+.phase-dot.completed .dot {
+  border-color: #534AB7;
+  background: #534AB7;
+  color: #fff;
+}
+
+.phase-dot.future .dot {
+  border-color: #d3d1c7;
+  background: #fff;
+  color: #b4b2a9;
+}
+
+.phase-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: #888780;
+  text-align: center;
+  max-width: 80px;
+  line-height: 1.3;
+  transition: color 0.3s;
+}
+
+.phase-dot.active .phase-label { color: #534AB7; font-weight: 600; }
+
+.phase-time {
+  font-size: 10px;
+  color: #b4b2a9;
+  margin-top: 2px;
+}
+
+.content-area {
+  display: grid;
+  grid-template-columns: 1fr 260px;
+  gap: 20px;
+  align-items: start;
+}
+
+.phase-detail {
+  background: #fff;
+  border: 1px solid #e8e6e0;
+  border-radius: 12px;
+  padding: 24px;
+  min-height: 340px;
+}
+
+.phase-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 4px;
+}
+
+.phase-period {
+  font-size: 12px;
+  color: #888780;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f1efe8;
+}
+
+.phase-objective {
+  font-size: 13px;
+  color: #5f5e5a;
+  line-height: 1.6;
+  margin-bottom: 16px;
+  font-style: italic;
+}
+
+.mechanism-group {
+  margin-bottom: 14px;
+}
+
+.group-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.group-label.assegurar { background: #E1F5EE; color: #0F6E56; }
+.group-label.accelerar { background: #EEEDFE; color: #534AB7; }
+.group-label.avancar { background: #FAECE7; color: #993C1D; }
+.group-label.coordinacio { background: #F1EFE8; color: #5f5e5a; }
+
+.mechanism-list { list-style: none; }
+
+.mechanism-item {
+  font-size: 13px;
+  color: #2c2c2a;
+  padding: 5px 0 5px 16px;
+  position: relative;
+  line-height: 1.4;
+}
+
+.mechanism-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 12px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.mechanism-item.new::before { background: #534AB7; }
+.mechanism-item.continues::before { background: #d3d1c7; }
+
+.mechanism-tag {
+  font-size: 10px;
+  font-weight: 500;
+  padding: 1px 5px;
+  border-radius: 3px;
+  margin-left: 4px;
+}
+
+.mechanism-tag.new { background: #EEEDFE; color: #534AB7; }
+.mechanism-tag.evolves { background: #FAEEDA; color: #854F0B; }
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.impact-card {
+  background: #fff;
+  border: 1px solid #e8e6e0;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.impact-title {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #888780;
+  margin-bottom: 12px;
+}
+
+.kpi-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid #f8f7f4;
+}
+
+.kpi-row:last-child { border-bottom: none; }
+
+.kpi-label { font-size: 12px; color: #5f5e5a; }
+
+.kpi-value {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.kpi-value.green { color: #3B6D11; }
+.kpi-value.purple { color: #534AB7; }
+
+.maturity-bar-container {
+  margin-top: 4px;
+}
+
+.maturity-label-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #888780;
+  margin-bottom: 4px;
+}
+
+.maturity-track {
+  height: 8px;
+  background: #f1efe8;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.maturity-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #AFA9EC, #534AB7);
+  transition: width 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.legend {
+  display: flex;
+  gap: 16px;
+  margin-top: 4px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: #888780;
+}
+
+.legend-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.legend-dot.new { background: #534AB7; }
+.legend-dot.continues { background: #d3d1c7; }
+
+.note {
+  font-size: 12px;
+  color: #888780;
+  margin-top: 20px;
+  padding: 12px;
+  background: #f8f7f4;
+  border-radius: 8px;
+  line-height: 1.5;
+}
+
+@media (max-width: 760px) {
+  .content-area { grid-template-columns: 1fr; }
+  body { padding: 16px; }
+  .phase-label { font-size: 10px; max-width: 60px; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Pla de maduresa progressiu del servei</h1>
+  <p class="subtitle">Selecciona cada fase per veure quins mecanismes s'activen, sobre quines bases es construeixen i quin impacte esperat generen.</p>
+
+  <div class="timeline">
+    <div class="timeline-progress" id="progress"></div>
+    <div class="phase-dot" onclick="selectPhase(0)">
+      <div class="dot">T</div>
+      <div class="phase-label">Transició</div>
+      <div class="phase-time">M1-M2</div>
+    </div>
+    <div class="phase-dot" onclick="selectPhase(1)">
+      <div class="dot">1</div>
+      <div class="phase-label">Fonaments</div>
+      <div class="phase-time">M3-M6</div>
+    </div>
+    <div class="phase-dot" onclick="selectPhase(2)">
+      <div class="dot">2</div>
+      <div class="phase-label">Consolidació</div>
+      <div class="phase-time">M7-M12</div>
+    </div>
+    <div class="phase-dot" onclick="selectPhase(3)">
+      <div class="dot">3</div>
+      <div class="phase-label">Acceleració</div>
+      <div class="phase-time">M13-M18</div>
+    </div>
+    <div class="phase-dot" onclick="selectPhase(4)">
+      <div class="dot">4</div>
+      <div class="phase-label">Maduresa</div>
+      <div class="phase-time">M19-M24</div>
+    </div>
+  </div>
+
+  <div class="content-area">
+    <div class="phase-detail" id="detail"></div>
+    <div class="sidebar">
+      <div class="impact-card">
+        <div class="impact-title">Capacitats actives</div>
+        <div id="kpis"></div>
+      </div>
+      <div class="impact-card">
+        <div class="impact-title">Maduresa del servei</div>
+        <div class="maturity-bar-container">
+          <div class="maturity-label-row">
+            <span>Reactiu</span>
+            <span id="maturity-pct">20%</span>
+            <span>Anticipatiu</span>
+          </div>
+          <div class="maturity-track">
+            <div class="maturity-fill" id="maturity-bar" style="width:20%"></div>
+          </div>
+        </div>
+      </div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot new"></div> Nou en aquesta fase</div>
+        <div class="legend-item"><div class="legend-dot continues"></div> Actiu de fases anteriors</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="note">
+    Cada mecanisme s'activa sobre les bases consolidades en fases anteriors. El desplegament progressiu assegura resultats tangibles des dels primers mesos i evita la sobrecàrrega de canvis simultanis sobre els proveïdors i els usuaris.
+  </div>
+</div>
+
+<script>
+const phases = [
+  {
+    title: "Transició",
+    period: "Mesos 1-2 · Transferència de coneixement i assumpció del servei",
+    objective: "Assegurar la continuïtat del servei, absorbir el coneixement de l'adjudicatari sortint i establir les bases operatives.",
+    groups: [
+      {
+        label: "Coordinació", cls: "coordinacio",
+        items: [
+          { text: "Transferència de coneixement amb l'adjudicatari sortint", new: true },
+          { text: "Activació de l'equip de 19 FTE i estructura d'unitats", new: true },
+          { text: "Posada en marxa del Kanban compartit i eines (Jira, Confluence, SharePoint)", new: true },
+        ]
+      },
+      {
+        label: "Assegurar", cls: "assegurar",
+        items: [
+          { text: "Assumir el marc de seguiment operatiu i generació d'informes existents", new: true },
+          { text: "Primeres sessions amb proveïdors per establir relació", new: true },
+        ]
+      },
+      {
+        label: "Accelerar", cls: "accelerar",
+        items: [
+          { text: "Diagnòstic inicial dels processos i instruccions operatives", new: true },
+        ]
+      }
+    ],
+    kpis: { govern: "Assumit", coneixement: "En absorció", usuari: "Línia base", anticipacio: "—" },
+    maturity: 15
+  },
+  {
+    title: "Fonaments",
+    period: "Mesos 3-6 · Primeres millores tangibles sobre bases sòlides",
+    objective: "Activar els mecanismes fonamentals del model: govern de proveïdors evolucionat, quadre de comandament unificat, conformitat de processos i primeres accions sobre el catàleg.",
+    groups: [
+      {
+        label: "Assegurar", cls: "assegurar",
+        items: [
+          { text: "Quadre de comandament unificat en tres nivells (Power BI)", new: true },
+          { text: "Sessions bidireccionals amb proveïdors i zones de risc", new: true },
+          { text: "Model d'indicadors en tres capes (operatius + trajectòria + XLA)", new: true },
+          { text: "Alertes preventives basades en regles (nivell 1 automatització)", new: true },
+        ]
+      },
+      {
+        label: "Accelerar", cls: "accelerar",
+        items: [
+          { text: "Conformitat automàtica de processos amb Celonis", new: true },
+          { text: "Responsable transversal de procés operatiu", new: true },
+          { text: "Model KCS: integració del coneixement al flux operatiu", new: true },
+        ]
+      },
+      {
+        label: "Avançar", cls: "avancar",
+        items: [
+          { text: "Instrumentació del comportament de l'usuari al portal", new: true },
+          { text: "Primeres sessions amb referents departamentals", new: true },
+          { text: "Validació del catàleg amb card sorting i tree testing", new: true },
+        ]
+      }
+    ],
+    kpis: { govern: "Visibilitat unificada", coneixement: "KCS actiu", usuari: "Primeres dades", anticipacio: "Alertes bàsiques" },
+    maturity: 35
+  },
+  {
+    title: "Consolidació",
+    period: "Mesos 7-12 · El model genera dades i es retroalimenta",
+    objective: "Consolidar els mecanismes fonamentals, activar l'analítica avançada i els primers mecanismes d'eficientació i millora de solucions d'usuari.",
+    groups: [
+      {
+        label: "Assegurar", cls: "assegurar",
+        items: [
+          { text: "Anàlisi de xarxa organitzativa entre proveïdors", new: true },
+          { text: "Comunicació proactiva amb l'usuari (4 escenaris)", new: true },
+          { text: "Analítica avançada amb sèries temporals (nivell 2)", new: true },
+          { text: "Quadre de comandament i alertes", new: false },
+        ]
+      },
+      {
+        label: "Accelerar", cls: "accelerar",
+        items: [
+          { text: "Reassignació intel·ligent de tiquets", new: true },
+          { text: "Generació automàtica d'articles KMDB (clústers)", new: true },
+          { text: "Intercepció de KMDB al portal d'autoservei", new: true },
+          { text: "Conformitat Celonis i KCS", new: false },
+        ]
+      },
+      {
+        label: "Avançar", cls: "avancar",
+        items: [
+          { text: "Panell d'usuaris representatius constituït", new: true },
+          { text: "Avaluació heurística semestral (Nielsen)", new: true },
+          { text: "Embut d'innovació: primeres millores d'execució immediata", new: true },
+        ]
+      }
+    ],
+    kpis: { govern: "Govern per zones de risc", coneixement: "Intercepció activa", usuari: "Escolta contínua", anticipacio: "Patrons detectats" },
+    maturity: 55
+  },
+  {
+    title: "Acceleració",
+    period: "Mesos 13-18 · IA i automatització avançada sobre bases consolidades",
+    objective: "Activar els mecanismes avançats d'IA i automatització, recolzats en el coneixement i les dades acumulades durant el primer any.",
+    groups: [
+      {
+        label: "Assegurar", cls: "assegurar",
+        items: [
+          { text: "Economia conductual aplicada als canals d'atenció", new: true },
+          { text: "Model anticipatiu amb IA (nivell 3)", new: true },
+          { text: "Resolució col·laborativa per incidents complexos", new: true },
+          { text: "Indicadors XLA consolidats", new: false },
+        ]
+      },
+      {
+        label: "Accelerar", cls: "accelerar",
+        items: [
+          { text: "Agent virtual de primer nivell amb KMDB", new: true },
+          { text: "Operacions d'autoguariment (self-healing)", new: true },
+          { text: "AI Service Coach per als agents del SAU", new: true },
+        ]
+      },
+      {
+        label: "Avançar", cls: "avancar",
+        items: [
+          { text: "Prototipatge progressiu en tres fases", new: true },
+          { text: "Simulació d'escenaris amb bessó digital", new: true },
+          { text: "Plataforma Experience Intelligence operativa", new: true },
+        ]
+      }
+    ],
+    kpis: { govern: "Doble bucle operatiu", coneixement: "IA sobre KMDB", usuari: "Resolució autònoma", anticipacio: "Predicció activa" },
+    maturity: 75
+  },
+  {
+    title: "Maduresa",
+    period: "Mesos 19-24 · El servei opera en mode anticipatiu i es millora contínuament",
+    objective: "Tots els mecanismes operen de forma integrada. El servei anticipa problemes, aprèn de cada interacció i l'experiència de l'usuari és el criteri final de qualitat.",
+    groups: [
+      {
+        label: "Assegurar", cls: "assegurar",
+        items: [
+          { text: "Govern complet amb doble bucle d'aprenentatge", new: true },
+          { text: "Torre de control operacional (Control Tower)", new: true },
+          { text: "Tot el model d'indicadors i alertes", new: false },
+        ]
+      },
+      {
+        label: "Accelerar", cls: "accelerar",
+        items: [
+          { text: "Catàleg com a punt de resolució (no d'obertura de tiquets)", new: true },
+          { text: "Agent virtual, self-healing i AI Service Coach integrats", new: false },
+          { text: "Celonis i KCS en millora contínua", new: false },
+        ]
+      },
+      {
+        label: "Avançar", cls: "avancar",
+        items: [
+          { text: "Implantació per fases amb gestió del canvi modulada", new: true },
+          { text: "Monitoratge post-implantació a 30/60/90 dies", new: true },
+          { text: "Laboratori d'Experiència d'Usuari en cicle continu", new: false },
+        ]
+      }
+    ],
+    kpis: { govern: "Control Tower integrat", coneixement: "Cicle continu", usuari: "XLA com a criteri", anticipacio: "Model anticipatiu" },
+    maturity: 95
+  }
+];
+
+let currentPhase = 0;
+
+function selectPhase(idx) {
+  currentPhase = idx;
+  const dots = document.querySelectorAll('.phase-dot');
+  dots.forEach((d, i) => {
+    d.className = 'phase-dot';
+    if (i < idx) d.classList.add('completed');
+    else if (i === idx) d.classList.add('active');
+    else d.classList.add('future');
+  });
+
+  const pct = idx / (dots.length - 1) * 100;
+  document.getElementById('progress').style.width = pct + '%';
+
+  const p = phases[idx];
+
+  let html = `<div class="phase-title">${p.title}</div>
+    <div class="phase-period">${p.period}</div>
+    <div class="phase-objective">${p.objective}</div>`;
+
+  p.groups.forEach(g => {
+    html += `<div class="mechanism-group">
+      <div class="group-label ${g.cls}">${g.label}</div>
+      <ul class="mechanism-list">`;
+    g.items.forEach(item => {
+      const cls = item.new ? 'new' : 'continues';
+      const tag = item.new
+        ? '<span class="mechanism-tag new">Nou</span>'
+        : '<span class="mechanism-tag evolves">Actiu</span>';
+      html += `<li class="mechanism-item ${cls}">${item.text} ${tag}</li>`;
+    });
+    html += `</ul></div>`;
+  });
+
+  document.getElementById('detail').innerHTML = html;
+
+  const k = p.kpis;
+  document.getElementById('kpis').innerHTML = `
+    <div class="kpi-row"><span class="kpi-label">Govern proveïdors</span><span class="kpi-value purple">${k.govern}</span></div>
+    <div class="kpi-row"><span class="kpi-label">Gestió coneixement</span><span class="kpi-value purple">${k.coneixement}</span></div>
+    <div class="kpi-row"><span class="kpi-label">Experiència usuari</span><span class="kpi-value green">${k.usuari}</span></div>
+    <div class="kpi-row"><span class="kpi-label">Capacitat anticipativa</span><span class="kpi-value purple">${k.anticipacio}</span></div>`;
+
+  document.getElementById('maturity-bar').style.width = p.maturity + '%';
+  document.getElementById('maturity-pct').textContent = p.maturity + '%';
+}
+
+selectPhase(0);
+</script>
+
+</body>
+</html>
